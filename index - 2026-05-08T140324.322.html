@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laptop Auction Portal</title>
+<script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8FAFC; }
+
+.sidebar { width: 220px; min-height: 100vh; background: #0F172A; position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; display: flex; flex-direction: column; }
+.sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; cursor: pointer; transition: all 0.18s; color: #94A3B8; font-size: 0.875rem; font-weight: 500; margin: 1px 8px; }
+.sidebar-nav-item:hover { background: #1E293B; color: #fff; }
+.sidebar-nav-item.active { background: #2563EB; color: #fff; }
+.sidebar-nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+
+.main-content { margin-left: 220px; min-height: 100vh; padding-bottom: 40px; }
+
+.laptop-card { background: #fff; border-radius: 18px; border: 1.5px solid #E2E8F0; box-shadow: 0 1px 8px rgba(15,23,42,0.06); transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s; overflow: hidden; display: flex; flex-direction: column; }
+.laptop-card:hover { box-shadow: 0 8px 32px rgba(37,99,235,0.13); transform: translateY(-3px); border-color: #2563EB44; }
+
+.btn-details { background: #2563EB; color: #fff; border-radius: 10px; font-weight: 600; font-size: 0.82rem; padding: 10px 0; width: 100%; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.18s; margin-top: auto; }
+.btn-details:hover { background: #1D4ED8; }
+.btn-details:disabled { background: #E2E8F0; color: #94A3B8; cursor: not-allowed; }
+
+.btn-place-bid { background: #2563EB; color: #fff; border-radius: 12px; font-weight: 700; font-size: 0.95rem; padding: 14px 0; width: 100%; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.18s, box-shadow 0.2s; box-shadow: 0 4px 18px rgba(37,99,235,0.28); }
+.btn-place-bid:hover { background: #1D4ED8; box-shadow: 0 6px 24px rgba(37,99,235,0.36); }
+
+.detail-panel { width: 420px; min-width: 360px; position: fixed; right: 0; top: 0; bottom: 0; background: #fff; border-left: 1.5px solid #E2E8F0; box-shadow: -4px 0 32px rgba(15,23,42,0.1); overflow-y: auto; z-index: 50; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(.22,1,.36,1); }
+.detail-panel.open { transform: translateX(0); }
+
+.panel-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.3); z-index: 45; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.panel-overlay.open { opacity: 1; pointer-events: all; }
+
+.badge-open { background: #DCFCE7; color: #16A34A; font-size: 0.7rem; font-weight: 700; border-radius: 20px; padding: 3px 10px; }
+.badge-closed { background: #FEE2E2; color: #DC2626; font-size: 0.7rem; font-weight: 700; border-radius: 20px; padding: 3px 10px; }
+
+.search-bar { background: #fff; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 9px 14px 9px 36px; font-size: 0.875rem; color: #0F172A; outline: none; width: 220px; transition: border-color 0.18s, box-shadow 0.18s, width 0.2s; font-family: inherit; }
+.search-bar:focus { border-color: #2563EB; box-shadow: 0 0 0 3px #2563EB18; width: 260px; }
+
+/* Card countdown — light */
+.countdown-box { display: flex; gap: 5px; align-items: center; }
+.cd-unit { background: #EFF6FF; color: #1D4ED8; border-radius: 8px; min-width: 36px; padding: 5px 4px; text-align: center; border: 1px solid #BFDBFE; }
+.cd-num { font-size: 0.95rem; font-weight: 800; line-height: 1; display: block; }
+.cd-label { font-size: 0.52rem; color: #60A5FA; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.cd-sep { color: #93C5FD; font-weight: 700; align-self: center; font-size: 0.9rem; }
+
+/* Panel countdown — also light */
+.cd-unit-panel { background: #EFF6FF; color: #1D4ED8; border-radius: 8px; min-width: 42px; padding: 7px 4px; text-align: center; border: 1px solid #BFDBFE; }
+.cd-num-panel { font-size: 1.15rem; font-weight: 800; line-height: 1; display: block; }
+.cd-label-panel { font-size: 0.55rem; color: #60A5FA; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.spec-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F1F5F9; }
+.spec-row:last-child { border-bottom: none; }
+
+.sort-select { background: #fff; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 8px 32px 8px 12px; font-size: 0.8rem; font-family: inherit; color: #334155; outline: none; font-weight: 500; cursor: pointer; appearance: none; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #0F172A; color: #fff; border-radius: 12px; padding: 14px 22px; font-size: 0.875rem; font-weight: 500; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.18); opacity: 0; transition: all 0.3s cubic-bezier(.22,1,.36,1); white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+.guideline-card { background: linear-gradient(135deg, #EFF6FF, #EDE9FE); border-radius: 16px; border: 1.5px solid #C7D2FE; }
+.pagination-btn { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #E2E8F0; background: #fff; color: #334155; font-size: 0.875rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.pagination-btn:hover { border-color: #2563EB; color: #2563EB; }
+.pagination-btn.active { background: #2563EB; border-color: #2563EB; color: #fff; }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.card-anim { animation: fadeInUp 0.35s ease both; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div style="padding:22px 16px 16px 16px; display:flex; flex-direction:column; height:100%;">
+    <!-- Logo: modern laptop SVG icon -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
+      <div style="background:#1E3A8A;border-radius:12px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #2563EB44;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="4" width="20" height="13" rx="2" stroke="#60A5FA" stroke-width="1.8" fill="#1E3A8A"/>
+          <rect x="5" y="7" width="14" height="8" rx="1" fill="#3B82F6" opacity="0.5"/>
+          <rect x="6" y="8" width="5" height="1.5" rx="0.5" fill="#93C5FD"/>
+          <rect x="6" y="11" width="8" height="1.5" rx="0.5" fill="#93C5FD" opacity="0.6"/>
+          <path d="M1 19h22" stroke="#60A5FA" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M8 19l-1 2h10l-1-2" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="color:#fff;font-weight:800;font-size:0.95rem;line-height:1.2;">Laptop</div>
+        <div style="color:#64748B;font-size:0.72rem;font-weight:500;">Auction Portal</div>
+      </div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:2px;">
+      <div class="sidebar-nav-item active" data-page="browse">
+        <i data-lucide="layout-grid"></i>
+        <span>Browse Laptops</span>
+      </div>
+      <div class="sidebar-nav-item" data-page="help">
+        <i data-lucide="help-circle"></i>
+        <span>Help &amp; Support</span>
+      </div>
+    </nav>
+  </div>
+</aside>
+
+<!-- Main content -->
+<div class="main-content">
+  <div style="padding:28px 32px 0 32px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#0F172A;letter-spacing:-0.02em;">Laptop Auction Portal</h1>
+      <p style="color:#64748B;font-size:0.875rem;margin-top:4px;">Bid for high-quality laptops at great prices</p>
+    </div>
+    <div style="position:relative;">
+      <i data-lucide="search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#94A3B8;pointer-events:none;"></i>
+      <input class="search-bar" id="searchInput" type="text" placeholder="Search laptops...">
+    </div>
+  </div>
+
+  <div style="padding:24px 32px 16px 32px;display:flex;align-items:center;justify-content:space-between;">
+    <h2 style="font-size:1.05rem;font-weight:700;color:#0F172A;border-left:3px solid #2563EB;padding-left:12px;">Browse Laptops</h2>
+    <div style="position:relative;">
+      <select class="sort-select" id="sortSelect">
+        <option value="closing">Sort by: Closing Date</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+      </select>
+      <i data-lucide="chevron-down" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#64748B;pointer-events:none;"></i>
+    </div>
+  </div>
+
+  <div style="padding:0 32px;" id="laptopGrid"></div>
+  <div style="padding:28px 32px 36px 32px;display:flex;align-items:center;justify-content:center;gap:6px;" id="pagination"></div>
+</div>
+
+<!-- Overlay -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+
+<!-- Right Detail Panel -->
+<div class="detail-panel" id="detailPanel">
+  <!-- Header: solid blue, visible X -->
+  <div style="background:#2563EB;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="closePanel()" style="width:32px;height:32px;border-radius:8px;background:#fff;border:none;color:#2563EB;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span style="color:#fff;font-weight:700;font-size:0.95rem;">Laptop Details</span>
+    </div>
+    <span id="panelBadge" style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:0.72rem;font-weight:700;color:#fff;">Open</span>
+  </div>
+  <div style="padding:20px;flex:1;" id="panelContent">
+    <div style="text-align:center;padding:60px 20px;color:#64748B;">
+      <i data-lucide="mouse-pointer-click" style="width:40px;height:40px;margin:0 auto 12px;display:block;color:#CBD5E1;"></i>
+      <div style="font-weight:600;">Click "See Details" on a laptop</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL      = "https://zbhwiofmcxvqiotskrsk.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_5jrh_mEKQGJbDkOSUNZFIw_TSLX_4jO";
+const supabaseClient    = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let laptops    = [];
+let selectedId = null;
+let countdownTimers = {};
+
+// ─── Date helpers ──────────────────────────────────────────────────────────────
+function parseClosingDate(raw) {
+  if (!raw) return null;
+  const ddmm = String(raw).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(.*)/);
+  if (ddmm) return new Date(`${ddmm[3]}-${ddmm[2].padStart(2,'0')}-${ddmm[1].padStart(2,'0')}${ddmm[4]}`);
+  return new Date(raw);
+}
+function formatDate(d) {
+  if (!d || isNaN(d)) return 'N/A';
+  return d.toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+// ─── Countdown ─────────────────────────────────────────────────────────────────
+function renderCountdown(targetDate, containerId, isPanel = false) {
+  if (countdownTimers[containerId]) clearInterval(countdownTimers[containerId]);
+  const unitClass  = isPanel ? 'cd-unit-panel' : 'cd-unit';
+  const numClass   = isPanel ? 'cd-num-panel'  : 'cd-num';
+  const labelClass = isPanel ? 'cd-label-panel': 'cd-label';
+
+  function update() {
+    const el = document.getElementById(containerId);
+    if (!el) { clearInterval(countdownTimers[containerId]); return; }
+    const diff = targetDate - Date.now();
+    if (diff <= 0) {
+      el.innerHTML = `<span style="font-size:0.8rem;color:#DC2626;font-weight:700;">Auction Ended</span>`;
+      clearInterval(countdownTimers[containerId]); return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.innerHTML = `<div class="countdown-box">
+      ${d > 0 ? `<div class="${unitClass}"><span class="${numClass}">${d}</span><span class="${labelClass}">${d!==1?'days':'day'}</span></div><span class="cd-sep">:</span>` : ''}
+      <div class="${unitClass}"><span class="${numClass}">${String(h).padStart(2,'0')}</span><span class="${labelClass}">hrs</span></div>
+      <span class="cd-sep">:</span>
+      <div class="${unitClass}"><span class="${numClass}">${String(m).padStart(2,'0')}</span><span class="${labelClass}">min</span></div>
+      <span class="cd-sep">:</span>
+      <div class="${unitClass}"><span class="${numClass}">${String(s).padStart(2,'0')}</span><span class="${labelClass}">sec</span></div>
+    </div>`;
+  }
+  update();
+  countdownTimers[containerId] = setInterval(update, 1000);
+}
+
+// ─── Render Grid ───────────────────────────────────────────────────────────────
+function renderGrid(data) {
+  const grid = document.getElementById('laptopGrid');
+  if (!data || data.length === 0) {
+    grid.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#64748B;">
+      <i data-lucide="laptop" style="width:48px;height:48px;margin:0 auto 16px;display:block;color:#CBD5E1;"></i>
+      <div style="font-weight:600;font-size:1rem;">No laptops found</div>
+    </div>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    return;
+  }
+
+  grid.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;">` +
+    data.map((l, i) => {
+      const isOpen = l.status === 'open';
+      const cdId   = `cd-card-${l.id}`;
+      return `
+        <div class="laptop-card card-anim" style="animation-delay:${i*0.05}s;">
+          <div style="height:150px;display:flex;align-items:center;justify-content:center;padding:14px;background:#F8FAFC;">
+            <img src="${l.img || ''}" alt="${l.name}"
+                 style="max-height:122px;max-width:100%;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.1));"
+                 onerror="this.parentNode.innerHTML='<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'48\\' height=\\'48\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#CBD5E1\\' stroke-width=\\'1.2\\'><rect x=\\'2\\' y=\\'3\\' width=\\'20\\' height=\\'14\\' rx=\\'2\\'/><path d=\\'M8 21h8M12 17v4\\'/></svg>'">
+          </div>
+          <div style="padding:14px 14px 14px 14px;display:flex;flex-direction:column;flex:1;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
+              <div style="font-size:0.875rem;font-weight:700;color:#0F172A;line-height:1.3;flex:1;">${l.name}</div>
+              <span class="${isOpen ? 'badge-open' : 'badge-closed'}" style="flex-shrink:0;white-space:nowrap;">${isOpen ? 'Open' : 'Closed'}</span>
+            </div>
+            <div style="font-size:0.74rem;color:#64748B;margin-bottom:10px;display:flex;align-items:center;gap:4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg>
+              ${l.cpu}
+            </div>
+            <div style="background:#F0FDF4;border-radius:10px;padding:7px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:0.67rem;color:#64748B;font-weight:500;">Minimum Bid</div>
+              <div style="font-size:1rem;font-weight:800;color:#16A34A;">₱10,000</div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="font-size:0.67rem;color:#64748B;font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em;">⏱ ${isOpen ? 'Time Remaining' : 'Auction Ended'}</div>
+              <div id="${cdId}"></div>
+            </div>
+            <button class="btn-details" ${!isOpen ? 'disabled' : `onclick="openPanel(${l.id})"`}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/></svg>
+              ${isOpen ? 'See Details' : 'Auction Closed'}
+            </button>
+          </div>
+        </div>`;
+    }).join('') + `</div>`;
+
+  if (typeof lucide !== "undefined") lucide.createIcons();
+  data.forEach(l => {
+    const d = parseClosingDate(l.closingDateRaw);
+    if (d) renderCountdown(d, `cd-card-${l.id}`, false);
+  });
+}
+
+// ─── Load Laptops ──────────────────────────────────────────────────────────────
+async function loadLaptops() {
+  const grid = document.getElementById('laptopGrid');
+  if (laptops.length === 0) {
+    grid.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#64748B;">
+      <i data-lucide="loader" style="width:36px;height:36px;margin:0 auto 12px;display:block;color:#2563EB;animation:spin 1s linear infinite;"></i>
+      <div style="font-weight:500;">Loading laptops...</div>
+    </div>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+  try {
+    const [
+      { data: laptopData, error: le },
+      { data: bidData,    error: be }
+    ] = await Promise.all([
+      supabaseClient.from('laptops').select('*').order('id', { ascending: true }),
+      supabaseClient.from('bids').select('laptop_id')
+    ]);
+    if (le) throw new Error(le.message);
+    if (be) throw new Error(be.message);
+
+    const countMap = {};
+    (bidData || []).forEach(b => { countMap[b.laptop_id] = (countMap[b.laptop_id] || 0) + 1; });
+
+    if (!laptopData || laptopData.length === 0) {
+      grid.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:20px;max-width:480px;margin:0 auto;"><div style="font-weight:700;color:#C2410C;">⚠️ No Laptops Found</div><div style="font-size:0.82rem;color:#64748B;margin-top:6px;">The laptops table is empty.</div></div></div>`;
+      return;
+    }
+
+    laptops = laptopData.map(item => {
+      const rawDate = item.closing_date;
+      const parsed  = parseClosingDate(rawDate);
+      return {
+        id:             item.id,
+        name:           item.title          || 'Unnamed Laptop',
+        brand:          item.brand          || 'N/A',
+        cpu:            item.processor      || 'N/A',
+        ram:            item.ram            || 'N/A',
+        storage:        item.storage        || 'N/A',
+        display:        item.display        || 'N/A',
+        condition:      item.condition      || 'N/A',
+        currentBid:     item.bidding_amount || 0,
+        totalBids:      countMap[item.id]   || 0,
+        status:         (item.status || 'closed').toLowerCase(),
+        closingDateRaw: rawDate,
+        closingDate:    formatDate(parsed),
+        img:            item.image_url      || '',
+        formUrl:        item.form_url       || '',   // ← Microsoft Forms URL per laptop
+      };
+    });
+
+    renderGrid(getFilteredSorted());
+    if (selectedId) {
+      const l = laptops.find(x => x.id === selectedId);
+      if (l) renderPanel(l);
+    }
+  } catch (err) {
+    console.error('loadLaptops error:', err);
+    grid.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:14px;padding:20px;max-width:480px;margin:0 auto;"><div style="font-weight:700;color:#DC2626;margin-bottom:8px;">❌ Connection Error</div><div style="font-size:0.8rem;color:#7F1D1D;font-family:monospace;word-break:break-all;margin-bottom:12px;">${err.message}</div><button onclick="loadLaptops()" style="padding:8px 20px;background:#2563EB;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;">Retry</button></div></div>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+}
+
+supabaseClient.channel('bids-realtime')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bids' }, () => loadLaptops())
+  .subscribe();
+
+// ─── Panel open/close ──────────────────────────────────────────────────────────
+function openPanel(id) {
+  selectedId = id;
+  const l = laptops.find(x => x.id === id);
+  if (!l) return;
+  renderPanel(l);
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('detailPanel').scrollTop = 0;
+}
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('open');
+  selectedId = null;
+}
+
+// ─── Render Panel ──────────────────────────────────────────────────────────────
+function renderPanel(l) {
+  const isOpen    = l.status === 'open';
+  const parsed    = parseClosingDate(l.closingDateRaw);
+  const cdPanelId = `cd-panel-${l.id}`;
+  const condColor = l.condition === 'Excellent' ? '#16A34A' : l.condition === 'Good' ? '#2563EB' : '#D97706';
+
+  const badge = document.getElementById('panelBadge');
+  badge.textContent = isOpen ? 'Open' : 'Closed';
+  badge.style.background = isOpen ? 'rgba(255,255,255,0.25)' : 'rgba(239,68,68,0.3)';
+
+  document.getElementById('panelContent').innerHTML = `
+    <!-- Image -->
+    <a href="${l.img || '#'}" target="_blank" rel="noopener noreferrer" title="Click to view full image"
+       style="display:block;background:#F8FAFC;border-radius:18px;height:210px;display:flex;align-items:center;justify-content:center;padding:18px;border:1.5px solid #E2E8F0;margin-bottom:18px;cursor:zoom-in;position:relative;overflow:hidden;transition:border-color 0.18s,box-shadow 0.18s;"
+       onmouseover="this.style.borderColor='#2563EB';this.style.boxShadow='0 0 0 3px #2563EB18'"
+       onmouseout="this.style.borderColor='#E2E8F0';this.style.boxShadow='none'">
+      <img src="${l.img || ''}" alt="${l.name}"
+           style="max-height:174px;max-width:100%;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.13));transition:transform 0.2s;"
+           onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"
+           onerror="this.parentNode.innerHTML='<div style=\\'color:#CBD5E1;text-align:center;\\'><svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'56\\' height=\\'56\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1\\' style=\\'margin:0 auto 8px;display:block;\\'><rect x=\\'2\\' y=\\'3\\' width=\\'20\\' height=\\'14\\' rx=\\'2\\'/><path d=\\'M8 21h8M12 17v4\\'/></svg><div style=\\'font-size:0.75rem;\\'>No image</div></div>'">
+      <div style="position:absolute;bottom:10px;right:10px;background:rgba(37,99,235,0.85);border-radius:6px;padding:4px 8px;display:flex;align-items:center;gap:4px;pointer-events:none;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        <span style="font-size:0.65rem;color:#fff;font-weight:600;">View</span>
+      </div>
+    </a>
+
+    <!-- Name -->
+    <div style="margin-bottom:16px;">
+      <h2 style="font-size:1.15rem;font-weight:800;color:#0F172A;margin-bottom:3px;">${l.name}</h2>
+      <div style="font-size:0.8rem;color:#64748B;font-weight:500;">${l.brand}</div>
+    </div>
+
+    <!-- Time Remaining: light blue bg -->
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-size:0.7rem;color:#2563EB;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;display:flex;align-items:center;gap:5px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Time Remaining
+      </div>
+      <div id="${cdPanelId}"></div>
+      <div style="font-size:0.7rem;color:#64748B;margin-top:8px;">Closes: ${l.closingDate}</div>
+    </div>
+
+    <!-- Minimum Bid -->
+    <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:14px;padding:14px 16px;margin-bottom:16px;border:1.5px solid #BBF7D0;">
+      <div style="font-size:0.72rem;color:#64748B;font-weight:600;margin-bottom:4px;">Minimum Bid</div>
+      <div style="font-size:1.8rem;font-weight:800;color:#16A34A;letter-spacing:-0.02em;">₱10,000</div>
+      <div style="font-size:0.72rem;color:#64748B;margin-top:4px;">All bids must be ₱10,000 or higher</div>
+    </div>
+
+    <!-- Specs -->
+    <div style="background:#F8FAFC;border-radius:14px;padding:14px;margin-bottom:16px;border:1.5px solid #E2E8F0;">
+      <div style="font-size:0.75rem;font-weight:700;color:#334155;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.04em;">Specifications</div>
+      <div class="spec-row">
+        <i data-lucide="tag" style="width:14px;height:14px;color:#2563EB;flex-shrink:0;"></i>
+        <span style="font-size:0.77rem;color:#64748B;width:90px;flex-shrink:0;">Brand</span>
+        <span style="font-size:0.8rem;color:#0F172A;font-weight:600;">${l.brand}</span>
+      </div>
+      <div class="spec-row">
+        <i data-lucide="cpu" style="width:14px;height:14px;color:#2563EB;flex-shrink:0;"></i>
+        <span style="font-size:0.77rem;color:#64748B;width:90px;flex-shrink:0;">Processor</span>
+        <span style="font-size:0.8rem;color:#0F172A;font-weight:600;">${l.cpu}</span>
+      </div>
+      <div class="spec-row">
+        <i data-lucide="database" style="width:14px;height:14px;color:#2563EB;flex-shrink:0;"></i>
+        <span style="font-size:0.77rem;color:#64748B;width:90px;flex-shrink:0;">RAM</span>
+        <span style="font-size:0.8rem;color:#0F172A;font-weight:600;">${l.ram}</span>
+      </div>
+      <div class="spec-row">
+        <i data-lucide="hard-drive" style="width:14px;height:14px;color:#2563EB;flex-shrink:0;"></i>
+        <span style="font-size:0.77rem;color:#64748B;width:90px;flex-shrink:0;">Storage</span>
+        <span style="font-size:0.8rem;color:#0F172A;font-weight:600;">${l.storage}</span>
+      </div>
+      <div class="spec-row">
+        <i data-lucide="monitor" style="width:14px;height:14px;color:#2563EB;flex-shrink:0;"></i>
+        <span style="font-size:0.77rem;color:#64748B;width:90px;flex-shrink:0;">Display</span>
+        <span style="font-size:0.8rem;color:#0F172A;font-weight:600;">${l.display}</span>
+      </div>
+      <div class="spec-row">
+        <i data-lucide="shield-check" style="width:14px;height:14px;color:#2563EB;flex-shrink:0;"></i>
+        <span style="font-size:0.77rem;color:#64748B;width:90px;flex-shrink:0;">Condition</span>
+        <span style="font-size:0.8rem;font-weight:700;color:${condColor};">${l.condition}</span>
+      </div>
+
+    </div>
+
+    ${isOpen ? `
+    <!-- Place Bid → Microsoft Forms -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.95rem;font-weight:700;color:#0F172A;border-left:3px solid #2563EB;padding-left:10px;margin-bottom:12px;">Place Your Bid</div>
+      <p style="font-size:0.8rem;color:#64748B;margin-bottom:14px;line-height:1.6;">Click the button below to open the bidding form for this laptop. Fill in your code name and bid amount on the form.</p>
+      <button class="btn-place-bid" onclick="placeBid('${l.formUrl}', '${l.name.replace(/'/g,"\\'")}')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Place Bid
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </button>
+    </div>
+    ` : `
+    <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:14px;padding:16px;margin-bottom:16px;text-align:center;">
+      <i data-lucide="lock" style="width:24px;height:24px;color:#DC2626;margin:0 auto 8px;display:block;"></i>
+      <div style="font-size:0.85rem;font-weight:600;color:#DC2626;">Auction Closed</div>
+      <div style="font-size:0.75rem;color:#94A3B8;margin-top:4px;">This auction has ended and no longer accepts bids.</div>
+    </div>
+    `}
+
+    <!-- Guidelines with proper SVG trophy icon -->
+    <div class="guideline-card" style="padding:16px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="width:38px;height:38px;background:linear-gradient(135deg,#2563EB,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;color:#1E40AF;margin-bottom:8px;">Bidding Guidelines</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;">
+            <li style="font-size:0.74rem;color:#334155;display:flex;gap:6px;align-items:flex-start;"><span style="color:#2563EB;font-weight:700;margin-top:1px;">•</span>Minimum bid is ₱10,000.</li>
+            <li style="font-size:0.74rem;color:#334155;display:flex;gap:6px;align-items:flex-start;"><span style="color:#2563EB;font-weight:700;margin-top:1px;">•</span>Bids cannot be edited or canceled once submitted.</li>
+            <li style="font-size:0.74rem;color:#334155;display:flex;gap:6px;align-items:flex-start;"><span style="color:#2563EB;font-weight:700;margin-top:1px;">•</span>Highest bidder wins when the auction closes.</li>
+            <li style="font-size:0.74rem;color:#334155;display:flex;gap:6px;align-items:flex-start;"><span style="color:#2563EB;font-weight:700;margin-top:1px;">•</span>Ensure your code name and amount are correct before submitting.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (parsed) renderCountdown(parsed, cdPanelId, true);
+}
+
+// ─── Place Bid → open Microsoft Form ──────────────────────────────────────────
+function placeBid(formUrl, laptopName) {
+  if (!formUrl) {
+    showToast(`⚠️ No form link set for "${laptopName}" yet.`);
+    return;
+  }
+  window.open(formUrl, '_blank', 'noopener,noreferrer');
+}
+
+// ─── Filter / Sort ─────────────────────────────────────────────────────────────
+function getFilteredSorted() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+  let data   = laptops.filter(l =>
+    l.name.toLowerCase().includes(q) || l.cpu.toLowerCase().includes(q) || l.brand.toLowerCase().includes(q)
+  );
+  if (sort === 'price-asc')  data = [...data].sort((a,b) => a.currentBid - b.currentBid);
+  if (sort === 'price-desc') data = [...data].sort((a,b) => b.currentBid - a.currentBid);
+  if (sort === 'closing')    data = [...data].sort((a,b) => new Date(a.closingDateRaw||0) - new Date(b.closingDateRaw||0));
+  return data;
+}
+document.getElementById('searchInput').addEventListener('input',  () => renderGrid(getFilteredSorted()));
+document.getElementById('sortSelect').addEventListener('change', () => renderGrid(getFilteredSorted()));
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.querySelectorAll('[data-page]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('[data-page]').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    if (item.dataset.page !== 'browse') showToast('This section is coming soon.');
+  });
+});
+
+if (typeof lucide !== "undefined") lucide.createIcons();
+loadLaptops();
+</script>
+</body>
+</html>
