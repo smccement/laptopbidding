@@ -1266,18 +1266,9 @@ async function loadLaptops() {
     if (typeof lucide !== "undefined") lucide.createIcons();
   }
   try {
-    const [
-      { data: laptopData, error: le },
-      { data: bidData,    error: be }
-    ] = await Promise.all([
-      supabaseClient.from('laptops').select('*').order('id', { ascending: true }),
-      supabaseClient.from('bids').select('laptop_id')
-    ]);
+    const { data: laptopData, error: le } =
+      await supabaseClient.from('laptops').select('*').order('id', { ascending: true });
     if (le) throw new Error(le.message);
-    if (be) throw new Error(be.message);
-
-    const countMap = {};
-    (bidData || []).forEach(b => { countMap[b.laptop_id] = (countMap[b.laptop_id] || 0) + 1; });
 
     if (!laptopData || laptopData.length === 0) {
       grid.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:18px;padding:24px;max-width:480px;margin:0 auto;"><div style="font-weight:700;color:#C2410C;font-size:1rem;">⚠️ No Laptops Found</div><div style="font-size:0.82rem;color:#64748B;margin-top:6px;">The laptops table is empty.</div></div></div>`;
@@ -1297,7 +1288,7 @@ async function loadLaptops() {
         display:        item.display        || 'N/A',
         condition:      item.condition      || 'N/A',
         currentBid:     item.bidding_amount || 0,
-        totalBids:      countMap[item.id]   || 0,
+        totalBids:      item.total_bids     || 0,
         status:         (item.status || 'closed').toLowerCase(),
         closingDateRaw: rawDate,
         closingDate:    formatDate(parsed),
@@ -1341,7 +1332,7 @@ async function loadLaptops() {
 
 // ─── Realtime ─────────────────────────────────────────────────────────────────
 supabaseClient.channel('realtime-updates')
-  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bids' },    () => loadLaptops())
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'laptops' }, () => loadLaptops())
   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'laptops' }, () => loadLaptops())
   .subscribe();
 
