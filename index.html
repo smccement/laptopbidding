@@ -4,6 +4,172 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laptop Auction Portal</title>
+
+<!-- ─── IP Access Control ──────────────────────────────────────────────────── -->
+<style id="ip-gate-style">
+  /* Hide everything until IP is verified */
+  body > *:not(#ip-gate-screen) { display: none !important; }
+  #ip-gate-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #F1F5F9;
+    font-family: 'Segoe UI', 'Plus Jakarta Sans', sans-serif;
+  }
+  .ip-gate-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 56px 48px 48px;
+    text-align: center;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.06);
+    border: 1.5px solid #E2E8F0;
+  }
+  .ip-gate-icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+  }
+  .ip-gate-icon-wrap.denied  { background: #FEF2F2; }
+  .ip-gate-icon-wrap.loading { background: #EFF6FF; }
+  .ip-gate-icon-wrap.error   { background: #FFFBEB; }
+  .ip-gate-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .ip-gate-subtitle {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .ip-gate-hint {
+    font-size: 0.78rem;
+    color: #94A3B8;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #F1F5F9;
+  }
+  .ip-gate-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3.5px solid #BFDBFE;
+    border-top-color: #2563EB;
+    border-radius: 50%;
+    animation: ip-spin 0.75s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes ip-spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- Gating screen rendered immediately; real body hidden until check passes -->
+<script>
+  (function () {
+    // ── Allowed IP whitelist ─────────────────────────────────────────────────
+    const allowedIPs = [
+      "115.84.230.250",
+      "111.125.113.180"
+    ];
+
+    // ── Inject gate screen before DOM is ready ───────────────────────────────
+    function injectGateScreen (mode, extra) {
+      // Remove any existing gate screen first
+      const existing = document.getElementById('ip-gate-screen');
+      if (existing) existing.remove();
+
+      let iconSVG, title, subtitle, hint, iconClass;
+
+      if (mode === 'loading') {
+        iconClass = 'loading';
+        iconSVG   = '<div class="ip-gate-spinner"></div>';
+        title     = 'Verifying Network Access';
+        subtitle  = 'Please wait while we authenticate your connection…';
+        hint      = '';
+      } else if (mode === 'denied') {
+        iconClass = 'denied';
+        iconSVG   = `<svg width="38" height="38" viewBox="0 0 24 24" fill="none"
+                       stroke="#DC2626" stroke-width="1.8" stroke-linecap="round"
+                       stroke-linejoin="round">
+                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                       <line x1="9" y1="9" x2="15" y2="15"/>
+                       <line x1="15" y1="9" x2="9" y2="15"/>
+                     </svg>`;
+        title     = 'Access Restricted';
+        subtitle  = 'This auction portal is only accessible from authorized company networks.';
+        hint      = 'If you believe this is an error, contact IT support.';
+      } else {
+        // error
+        iconClass = 'error';
+        iconSVG   = `<svg width="38" height="38" viewBox="0 0 24 24" fill="none"
+                       stroke="#D97706" stroke-width="1.8" stroke-linecap="round"
+                       stroke-linejoin="round">
+                       <circle cx="12" cy="12" r="10"/>
+                       <line x1="12" y1="8" x2="12" y2="12"/>
+                       <line x1="12" y1="16" x2="12.01" y2="16"/>
+                     </svg>`;
+        title     = 'Network Verification Failed';
+        subtitle  = 'Unable to verify network access. Please check your connection and try again.';
+        hint      = 'If this issue persists, please contact IT support.';
+      }
+
+      const screen = document.createElement('div');
+      screen.id = 'ip-gate-screen';
+      screen.innerHTML = `
+        <div class="ip-gate-card">
+          <div class="ip-gate-icon-wrap ${iconClass}">${iconSVG}</div>
+          <div class="ip-gate-title">${title}</div>
+          <div class="ip-gate-subtitle">${subtitle}</div>
+          ${hint ? `<div class="ip-gate-hint">${hint}</div>` : ''}
+        </div>`;
+
+      // Inject as first child of body, or queue for DOMContentLoaded
+      if (document.body) {
+        document.body.insertAdjacentElement('afterbegin', screen);
+      } else {
+        document.addEventListener('DOMContentLoaded', function () {
+          document.body.insertAdjacentElement('afterbegin', screen);
+        });
+      }
+    }
+
+    // ── Grant access: remove gate screen + style override ────────────────────
+    function grantAccess () {
+      const screen = document.getElementById('ip-gate-screen');
+      if (screen) screen.remove();
+      const style  = document.getElementById('ip-gate-style');
+      if (style)  style.remove();
+    }
+
+    // ── Main verification flow ───────────────────────────────────────────────
+    injectGateScreen('loading');
+
+    fetch('https://api.ipify.org?format=json')
+      .then(function (res) {
+        if (!res.ok) throw new Error('ipify response not ok');
+        return res.json();
+      })
+      .then(function (data) {
+        const visitorIP = (data.ip || '').trim();
+        if (allowedIPs.includes(visitorIP)) {
+          grantAccess();   // ✅ Allowed — reveal the real site
+        } else {
+          injectGateScreen('denied');   // 🚫 Not in whitelist
+        }
+      })
+      .catch(function () {
+        injectGateScreen('error');   // ⚠️ API unreachable
+      });
+  })();
+</script>
 <script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -493,6 +659,9 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
 .card-anim { animation: fadeInUp 0.38s ease both; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+/* ─── Section Divider ──────────────────────────────────────────────────────── */
+#allListingsWrap { border-top: 1.5px solid #E2E8F0; padding-top: 4px; }
+
 /* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -627,15 +796,25 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
     <div id="brandChips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
   </div>
 
-  <!-- Section Heading -->
-  <div class="section-heading-wrap">
-    <span class="section-heading-icon" id="sectionIcon">✨</span>
-    <h2 class="section-heading" id="sectionTitle">New Arrivals</h2>
-    <span class="section-listing-count" id="listingCount">0 listings</span>
+  <!-- New Arrivals Section -->
+  <div id="newArrivalsWrap">
+    <div class="section-heading-wrap">
+      <span class="section-heading-icon">✨</span>
+      <h2 class="section-heading">New Arrivals</h2>
+      <span class="section-listing-count" id="newArrivalsCount">0 listings</span>
+    </div>
+    <div style="padding:10px 32px 0;" id="newArrivalsGrid"></div>
   </div>
 
-  <!-- Laptop Grid -->
-  <div style="padding:16px 32px;" id="laptopGrid"></div>
+  <!-- All Listings Section -->
+  <div style="margin-top:32px;" id="allListingsWrap">
+    <div class="section-heading-wrap">
+      <span class="section-heading-icon" id="sectionIcon">🖥️</span>
+      <h2 class="section-heading" id="sectionTitle">All Listings</h2>
+      <span class="section-listing-count" id="listingCount">0 listings</span>
+    </div>
+    <div style="padding:10px 32px 0;" id="laptopGrid"></div>
+  </div>
 
   <!-- Pagination -->
   <div style="padding:28px 32px 36px 32px;display:flex;align-items:center;justify-content:center;gap:6px;" id="pagination"></div>
@@ -833,18 +1012,30 @@ function renderStats(laptopList) {
   }).length;
 
   const stats = [
-    { label: 'Active Auctions', value: active,        icon: 'activity',    color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
-    { label: 'Total Bids',      value: totalBids,     icon: 'trending-up', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-    { label: 'Total Listings',  value: totalListings, icon: 'laptop',      color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
-    { label: 'Ending Soon',     value: endingSoon,    icon: 'clock',       color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
+    {
+      label: 'Active Auctions', value: active, bg: '#EFF6FF', border: '#BFDBFE', color: '#2563EB',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`
+    },
+    {
+      label: 'Total Bids', value: totalBids, bg: '#F5F3FF', border: '#DDD6FE', color: '#7C3AED',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`
+    },
+    {
+      label: 'Total Listings', value: totalListings, bg: '#ECFEFF', border: '#A5F3FC', color: '#0891B2',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`
+    },
+    {
+      label: 'Ending Soon', value: endingSoon, bg: '#FFFBEB', border: '#FDE68A', color: '#D97706',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+    },
   ];
 
   statsSection.innerHTML = `
     <div class="stats-grid">
       ${stats.map(s => `
         <div class="stat-card" style="--sc-bg:${s.bg};--sc-border:${s.border};">
-          <div class="stat-icon-wrap">
-            <i data-lucide="${s.icon}" style="width:22px;height:22px;color:${s.color};"></i>
+          <div class="stat-icon-wrap" style="color:${s.color};">
+            ${s.svg}
           </div>
           <div>
             <div class="stat-value">${s.value}</div>
@@ -854,8 +1045,6 @@ function renderStats(laptopList) {
       `).join('')}
     </div>
   `;
-
-  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 // ─── Ending Soon Section ───────────────────────────────────────────────────────
@@ -920,85 +1109,118 @@ function renderEndingSoon(laptopList) {
   });
 }
 
+// ─── Build a single laptop card HTML ───────────────────────────────────────────
+function buildCard(l, i, badgeOverride) {
+  const isOpen = l.status === 'open';
+  const cdId   = `cd-card-${l.id}`;
+  const badge  = badgeOverride || (l.totalBids >= 3 ? 'hot' : '');
+  return `
+    <div class="laptop-card card-anim" style="animation-delay:${i * 0.045}s;">
+      <div class="card-img-wrap">
+        ${badge === 'new' ? '<span class="badge-new">✦ NEW</span>' : ''}
+        ${badge === 'hot' ? '<span class="badge-hot">🔥 HOT</span>' : ''}
+        <img src="${l.img || ''}" alt="${l.name}" class="card-img"
+             onerror="this.parentNode.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;\\'><svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'52\\' height=\\'52\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#CBD5E1\\' stroke-width=\\'1.2\\'><rect x=\\'2\\' y=\\'3\\' width=\\'20\\' height=\\'14\\' rx=\\'2\\'/><path d=\\'M8 21h8M12 17v4\\'/></svg></div>'">
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;flex:1;gap:0;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px;">
+          <div style="font-size:0.9rem;font-weight:700;color:#0F172A;line-height:1.3;flex:1;">${l.name}</div>
+          <span class="${isOpen ? 'badge-open' : 'badge-closed'}">${isOpen ? 'Open' : 'Closed'}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+          ${l.cpu !== 'N/A' ? `<span style="display:inline-flex;align-items:center;gap:3px;background:#F1F5F9;border:1px solid #E2E8F0;padding:3px 9px;border-radius:20px;font-size:0.7rem;color:#475569;font-weight:500;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>${l.cpu}</span>` : ''}
+          ${l.ram !== 'N/A' ? `<span style="display:inline-flex;align-items:center;gap:3px;background:#F1F5F9;border:1px solid #E2E8F0;padding:3px 9px;border-radius:20px;font-size:0.7rem;color:#475569;font-weight:500;">${l.ram}</span>` : ''}
+        </div>
+        <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;border:1px solid #BBF7D0;">
+          <div>
+            <div style="font-size:0.62rem;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Min. Bid</div>
+            <div style="font-size:1.05rem;font-weight:800;color:#16A34A;font-family:'Poppins',sans-serif;">₱10,000</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.62rem;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Bids</div>
+            <div style="font-size:1.05rem;font-weight:800;color:#0F172A;font-family:'Poppins',sans-serif;">${l.totalBids}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="font-size:0.64rem;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">${isOpen ? '⏱ Time Remaining' : '⛔ Auction Ended'}</div>
+          <div id="${cdId}"></div>
+        </div>
+        <button class="btn-details" ${!isOpen ? 'disabled' : `onclick="openPanel(${l.id})"`}>
+          ${isOpen ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/></svg> View &amp; Bid` : 'Auction Closed'}
+        </button>
+      </div>
+    </div>`;
+}
+
 // ─── Render Grid ───────────────────────────────────────────────────────────────
 function renderGrid(data) {
-  const grid = document.getElementById('laptopGrid');
+  const grid            = document.getElementById('laptopGrid');
+  const newArrivalsGrid = document.getElementById('newArrivalsGrid');
+  const newArrivalsWrap = document.getElementById('newArrivalsWrap');
+  const sectionIcon     = document.getElementById('sectionIcon');
+  const sectionTitle    = document.getElementById('sectionTitle');
+  const listingCount    = document.getElementById('listingCount');
+  const newArrivalsCount= document.getElementById('newArrivalsCount');
 
-  // Update section heading
-  const sectionIcon  = document.getElementById('sectionIcon');
-  const sectionTitle = document.getElementById('sectionTitle');
-  const listingCount = document.getElementById('listingCount');
   const q = document.getElementById('searchInput').value;
   const filtersActive = activeFilters.status !== 'all' || activeFilters.condition !== 'all' || activeFilters.brand !== 'all';
+  const isFiltered = q || filtersActive;
+
+  // ── New Arrivals: top 3 newest open laptops by id (hidden when filtering) ──
+  if (isFiltered) {
+    newArrivalsWrap.style.display = 'none';
+  } else {
+    newArrivalsWrap.style.display = '';
+    const newArrivals = [...laptops]
+      .filter(l => l.status === 'open')
+      .sort((a, b) => b.id - a.id)
+      .slice(0, 3);
+
+    if (newArrivalsCount) newArrivalsCount.textContent = `${newArrivals.length} listing${newArrivals.length !== 1 ? 's' : ''}`;
+
+    if (newArrivals.length === 0) {
+      newArrivalsGrid.innerHTML = `<p style="color:#94A3B8;font-size:0.85rem;padding:4px 0 12px;">No open listings yet.</p>`;
+    } else {
+      newArrivalsGrid.innerHTML =
+        `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;">` +
+        newArrivals.map((l, i) => buildCard(l, i, 'new')).join('') +
+        `</div>`;
+      newArrivals.forEach(l => {
+        const d = parseClosingDate(l.closingDateRaw);
+        if (d) renderCountdown(d, `cd-card-${l.id}`, false);
+      });
+    }
+  }
+
+  // ── All Listings section heading ──
   if (sectionIcon && sectionTitle) {
-    if (q || filtersActive) {
+    if (isFiltered) {
       sectionIcon.textContent  = '🔍';
       sectionTitle.textContent = 'Search Results';
     } else {
-      sectionIcon.textContent  = '✨';
-      sectionTitle.textContent = 'New Arrivals';
+      sectionIcon.textContent  = '🖥️';
+      sectionTitle.textContent = 'All Listings';
     }
   }
   if (listingCount) listingCount.textContent = `${data.length} listing${data.length !== 1 ? 's' : ''}`;
 
+  // ── All Listings grid ──
   if (!data || data.length === 0) {
     grid.innerHTML = `<div style="text-align:center;padding:80px 20px;color:#64748B;">
       <div style="width:72px;height:72px;background:#F1F5F9;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:1.5px solid #E2E8F0;">
-        <i data-lucide="laptop" style="width:32px;height:32px;color:#CBD5E1;"></i>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
       </div>
       <div style="font-weight:700;font-size:1.05rem;color:#334155;margin-bottom:6px;">No laptops found</div>
       <div style="font-size:0.875rem;color:#94A3B8;">Try adjusting your filters or search terms</div>
     </div>`;
-    if (typeof lucide !== "undefined") lucide.createIcons();
     return;
   }
 
-  grid.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;">` +
-    data.map((l, i) => {
-      const isOpen = l.status === 'open';
-      const cdId   = `cd-card-${l.id}`;
-      const isNew  = i < 2 && isOpen;
-      const isHot  = !isNew && l.totalBids >= 3;
+  grid.innerHTML =
+    `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;">` +
+    data.map((l, i) => buildCard(l, i, l.totalBids >= 3 ? 'hot' : '')).join('') +
+    `</div>`;
 
-      return `
-        <div class="laptop-card card-anim" style="animation-delay:${i * 0.045}s;">
-          <div class="card-img-wrap">
-            ${isNew ? '<span class="badge-new">✦ NEW</span>' : ''}
-            ${isHot ? '<span class="badge-hot">🔥 HOT</span>' : ''}
-            <img src="${l.img || ''}" alt="${l.name}" class="card-img"
-                 onerror="this.parentNode.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;\\'><svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'52\\' height=\\'52\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#CBD5E1\\' stroke-width=\\'1.2\\'><rect x=\\'2\\' y=\\'3\\' width=\\'20\\' height=\\'14\\' rx=\\'2\\'/><path d=\\'M8 21h8M12 17v4\\'/></svg></div>'">
-          </div>
-          <div style="padding:16px;display:flex;flex-direction:column;flex:1;gap:0;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px;">
-              <div style="font-size:0.9rem;font-weight:700;color:#0F172A;line-height:1.3;flex:1;">${l.name}</div>
-              <span class="${isOpen ? 'badge-open' : 'badge-closed'}">${isOpen ? 'Open' : 'Closed'}</span>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
-              ${l.cpu !== 'N/A' ? `<span style="display:inline-flex;align-items:center;gap:3px;background:#F1F5F9;border:1px solid #E2E8F0;padding:3px 9px;border-radius:20px;font-size:0.7rem;color:#475569;font-weight:500;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>${l.cpu}</span>` : ''}
-              ${l.ram !== 'N/A' ? `<span style="display:inline-flex;align-items:center;gap:3px;background:#F1F5F9;border:1px solid #E2E8F0;padding:3px 9px;border-radius:20px;font-size:0.7rem;color:#475569;font-weight:500;">${l.ram}</span>` : ''}
-            </div>
-            <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;border:1px solid #BBF7D0;">
-              <div>
-                <div style="font-size:0.62rem;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Min. Bid</div>
-                <div style="font-size:1.05rem;font-weight:800;color:#16A34A;font-family:'Poppins',sans-serif;">₱10,000</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:0.62rem;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Bids</div>
-                <div style="font-size:1.05rem;font-weight:800;color:#0F172A;font-family:'Poppins',sans-serif;">${l.totalBids}</div>
-              </div>
-            </div>
-            <div style="margin-bottom:14px;">
-              <div style="font-size:0.64rem;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">${isOpen ? '⏱ Time Remaining' : '⛔ Auction Ended'}</div>
-              <div id="${cdId}"></div>
-            </div>
-            <button class="btn-details" ${!isOpen ? 'disabled' : `onclick="openPanel(${l.id})"`}>
-              ${isOpen ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/></svg> View &amp; Bid` : 'Auction Closed'}
-            </button>
-          </div>
-        </div>`;
-    }).join('') + `</div>`;
-
-  if (typeof lucide !== "undefined") lucide.createIcons();
   data.forEach(l => {
     const d = parseClosingDate(l.closingDateRaw);
     if (d) renderCountdown(d, `cd-card-${l.id}`, false);
