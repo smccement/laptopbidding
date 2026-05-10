@@ -288,99 +288,83 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
 .sort-select:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
 /* ─── Hero Section ────────────────────────────────────────────────────────── */
-.hero-wrap { padding: 24px 32px 0; }
+.hero-wrap { padding: 20px 32px 0; }
 .hero-section {
-  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #7C3AED 100%);
-  border-radius: 24px;
-  padding: 38px 44px;
+  background: #fff;
+  border-radius: 20px;
+  border: 1.5px solid #E2E8F0;
+  padding: 32px 28px 32px 40px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 32px;
+  gap: 28px;
   overflow: hidden;
   position: relative;
-  min-height: 270px;
-  box-shadow: 0 20px 60px rgba(37,99,235,0.25);
+  min-height: 300px;
+  box-shadow: 0 2px 16px rgba(15,23,42,0.06);
 }
+/* Accent bar on the left edge */
 .hero-section::before {
   content: '';
   position: absolute;
-  top: -80px; right: -80px;
-  width: 360px; height: 360px;
-  background: radial-gradient(circle, rgba(124,58,237,0.4) 0%, transparent 65%);
-  pointer-events: none;
-}
-.hero-section::after {
-  content: '';
-  position: absolute;
-  bottom: -50px; left: 20%;
-  width: 250px; height: 250px;
-  background: radial-gradient(circle, rgba(96,165,250,0.25) 0%, transparent 65%);
-  pointer-events: none;
-}
-/* Subtle mesh dots pattern */
-.hero-section .hero-dots {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size: 28px 28px;
-  pointer-events: none;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #2563EB 0%, #7C3AED 100%);
+  border-radius: 4px 0 0 4px;
 }
 .hero-left { flex: 1; min-width: 0; position: relative; z-index: 2; }
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.28);
+  gap: 6px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
   border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 0.7rem;
+  padding: 4px 12px;
+  font-size: 0.68rem;
   font-weight: 700;
-  color: #fff;
+  color: #2563EB;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  margin-bottom: 14px;
-  backdrop-filter: blur(6px);
+  margin-bottom: 12px;
 }
 .hero-badge-dot {
-  width: 7px; height: 7px;
-  background: #4ADE80;
+  width: 6px; height: 6px;
+  background: #22C55E;
   border-radius: 50%;
   animation: pulse-dot 1.8s ease-in-out infinite;
-  box-shadow: 0 0 6px rgba(74,222,128,0.6);
+  box-shadow: 0 0 5px rgba(34,197,94,0.5);
 }
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.4); }
+  50% { opacity: 0.5; transform: scale(1.5); }
 }
 .hero-title {
   font-family: 'Poppins', sans-serif;
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   font-weight: 800;
-  color: #fff;
+  color: #0F172A;
   letter-spacing: -0.025em;
   line-height: 1.2;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
-.hero-specs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+.hero-specs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
 .hero-spec-chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 20px;
-  padding: 5px 11px;
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.9);
+  padding: 4px 10px;
+  font-size: 0.71rem;
+  color: #475569;
   font-weight: 500;
-  backdrop-filter: blur(4px);
 }
 .hero-countdown-label {
-  font-size: 0.67rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.6);
+  color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 8px;
@@ -388,123 +372,121 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
   align-items: center;
   gap: 5px;
 }
-.hero-countdown-wrap { margin-bottom: 22px; }
-.hero-countdown-wrap .countdown-box { gap: 7px; }
+.hero-countdown-wrap { margin-bottom: 20px; }
+.hero-countdown-wrap .countdown-box { gap: 6px; }
 .hero-countdown-wrap .cd-unit {
-  background: rgba(255,255,255,0.14) !important;
-  border-color: rgba(255,255,255,0.25) !important;
-  min-width: 54px !important;
-  padding: 9px 6px !important;
-  backdrop-filter: blur(8px);
+  background: #2563EB !important;
+  border-color: #1D4ED8 !important;
+  min-width: 56px !important;
+  padding: 10px 6px !important;
   border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.25);
 }
 .hero-countdown-wrap .cd-num {
-  font-size: 1.45rem !important;
+  font-size: 1.4rem !important;
   color: #fff !important;
   font-weight: 800 !important;
   font-family: 'Poppins', sans-serif;
 }
 .hero-countdown-wrap .cd-label {
-  color: rgba(255,255,255,0.6) !important;
-  font-size: 0.54rem !important;
+  color: rgba(255,255,255,0.7) !important;
+  font-size: 0.52rem !important;
 }
 .hero-countdown-wrap .cd-sep {
-  color: rgba(255,255,255,0.35) !important;
-  font-size: 1.15rem !important;
+  color: #93C5FD !important;
+  font-size: 1.1rem !important;
 }
 .hero-bid-stats {
   display: flex;
   align-items: center;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 14px;
-  padding: 12px 20px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(8px);
-  width: fit-content;
   gap: 0;
+  margin-bottom: 22px;
 }
 .hero-stat-item { padding: 0 18px; }
 .hero-stat-item:first-child { padding-left: 0; }
 .hero-stat-item:last-child { padding-right: 0; }
-.hero-stat-val { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
-.hero-stat-label { font-size: 0.63rem; color: rgba(255,255,255,0.55); font-weight: 500; margin-top: 1px; text-transform: uppercase; letter-spacing: 0.05em; }
-.hero-stat-div { width: 1px; height: 34px; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+.hero-stat-val { font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 800; color: #0F172A; letter-spacing: -0.01em; }
+.hero-stat-label { font-size: 0.62rem; color: #94A3B8; font-weight: 500; margin-top: 1px; text-transform: uppercase; letter-spacing: 0.05em; }
+.hero-stat-div { width: 1px; height: 30px; background: #E2E8F0; flex-shrink: 0; }
 .hero-cta {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  background: #fff;
-  color: #1D4ED8;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  color: #fff;
   border: none;
-  border-radius: 13px;
-  padding: 14px 26px;
-  font-size: 0.9rem;
+  border-radius: 12px;
+  padding: 13px 26px;
+  font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.35);
   font-family: inherit;
 }
-.hero-cta:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 32px rgba(0,0,0,0.25); }
+.hero-cta:hover { background: linear-gradient(135deg, #1D4ED8, #1E40AF); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.45); }
 .hero-right {
-  width: 420px;
+  width: 400px;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  align-self: stretch;
 }
-.hero-img-glow {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  width: 360px; height: 360px;
-  background: radial-gradient(circle, rgba(147,197,253,0.38) 0%, transparent 68%);
-  pointer-events: none;
-}
-.hero-img-wrap { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
-.hero-img {
-  max-width: 400px;
-  max-height: 300px;
-  object-fit: contain;
-  filter: drop-shadow(0 24px 44px rgba(0,0,0,0.32));
-  animation: float-img 4.5s ease-in-out infinite;
-}
-@keyframes float-img {
-  0%, 100% { transform: translateY(0) rotate(-1deg); }
-  50% { transform: translateY(-12px) rotate(1deg); }
-}
-
-/* ─── Stats Grid ──────────────────────────────────────────────────────────── */
-.stats-wrap { padding: 18px 32px 0; }
-.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
-.stat-card {
-  background: var(--sc-bg, #EFF6FF);
-  border: 1.5px solid var(--sc-border, #BFDBFE);
-  border-radius: 18px;
-  padding: 18px 20px;
+.hero-img-glow { display: none; }
+.hero-img-wrap {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
-  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.hero-img-wrap::before { display: none; }
+.hero-img-wrap:hover { border-color: transparent; box-shadow: none; }
+.hero-img {
+  max-width: 380px;
+  max-height: 300px;
+  width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 36px rgba(15,23,42,0.16));
+  animation: none;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.hero-img-wrap:hover .hero-img { transform: scale(1.04) translateY(-4px); }
+
+/* ─── Stats Grid ──────────────────────────────────────────────────────────── */
+.stats-wrap { padding: 14px 32px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.stat-card {
+  background: #fff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: box-shadow 0.2s, border-color 0.2s;
   cursor: default;
 }
-.stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(15,23,42,0.09); }
+.stat-card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.07); border-color: #CBD5E1; }
 .stat-icon-wrap {
-  width: 46px; height: 46px;
-  background: #fff;
-  border-radius: 13px;
+  width: 38px; height: 38px;
+  background: var(--sc-bg, #EFF6FF);
+  border: 1px solid var(--sc-border, #BFDBFE);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(15,23,42,0.08);
 }
-.stat-value { font-family: 'Poppins', sans-serif; font-size: 1.55rem; font-weight: 800; color: #0F172A; letter-spacing: -0.025em; line-height: 1; }
-.stat-label { font-size: 0.72rem; color: #64748B; font-weight: 600; margin-top: 3px; }
+.stat-value { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 800; color: #0F172A; letter-spacing: -0.025em; line-height: 1; }
+.stat-label { font-size: 0.7rem; color: #94A3B8; font-weight: 500; margin-top: 3px; }
 
 /* ─── Ending Soon Section ─────────────────────────────────────────────────── */
 .ending-section-wrap { padding: 20px 32px 0; }
@@ -525,7 +507,8 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding: 6px 4px 12px 4px;
+  margin: 0 -4px;
   scrollbar-width: none;
 }
 .ending-scroll::-webkit-scrollbar { display: none; }
@@ -542,7 +525,7 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
   transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s, border-color 0.2s;
   flex-shrink: 0;
 }
-.ending-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(217,119,6,0.13); border-color: #FCD34D; }
+.ending-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(217,119,6,0.22), 0 0 0 2px #F59E0B; border-color: #F59E0B; }
 .ending-card-img {
   width: 82px; height: 70px;
   background: linear-gradient(160deg,#F8FAFC,#EFF6FF);
@@ -569,17 +552,19 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
 }
 
 /* ─── New Listing Banner ──────────────────────────────────────────────────── */
-.new-listing-banner { display: flex; border-radius: 16px; background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #7C3AED 100%); align-items: center; gap: 14px; position: relative; overflow: hidden; max-height: 0; opacity: 0; pointer-events: none; padding: 0 18px; margin: 0 32px; transition: max-height 0.45s cubic-bezier(.22,1,.36,1), opacity 0.35s ease, padding 0.35s ease, margin-top 0.35s ease; }
-.new-listing-banner.visible { max-height: 100px; opacity: 1; padding: 14px 18px; margin-top: 20px; pointer-events: all; }
-.banner-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); }
+.new-listing-banner { display: flex; border-radius: 14px; background: #fff; border: 1.5px solid #BFDBFE; align-items: center; gap: 14px; position: relative; overflow: hidden; max-height: 0; opacity: 0; pointer-events: none; padding: 0 18px; margin: 0 32px; transition: max-height 0.45s cubic-bezier(.22,1,.36,1), opacity 0.35s ease, padding 0.35s ease, margin-top 0.35s ease; box-shadow: 0 2px 12px rgba(37,99,235,0.08); }
+.new-listing-banner.visible { max-height: 100px; opacity: 1; padding: 12px 16px; margin-top: 16px; pointer-events: all; }
+/* Blue left accent bar */
+.new-listing-banner::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, #2563EB, #7C3AED); border-radius: 4px 0 0 4px; }
+.banner-icon { width: 36px; height: 36px; background: #EFF6FF; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #BFDBFE; color: #2563EB; }
 .banner-text { flex: 1; min-width: 0; }
-.banner-label { font-size: 0.7rem; font-weight: 700; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
-.banner-title { font-size: 0.95rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.banner-sub { font-size: 0.75rem; color: rgba(255,255,255,0.65); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.banner-btn { background: #fff; color: #1D4ED8; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; cursor: pointer; flex-shrink: 0; transition: background 0.15s, transform 0.1s; white-space: nowrap; }
-.banner-btn:hover { background: #EFF6FF; transform: scale(1.03); }
-.banner-close { width: 28px; height: 28px; background: rgba(255,255,255,0.1); border: none; border-radius: 7px; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s; }
-.banner-close:hover { background: rgba(255,255,255,0.2); }
+.banner-label { font-size: 0.65rem; font-weight: 700; color: #2563EB; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.banner-title { font-size: 0.9rem; font-weight: 700; color: #0F172A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.banner-sub { font-size: 0.73rem; color: #64748B; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.banner-btn { background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #fff; border: none; border-radius: 9px; padding: 8px 18px; font-size: 0.78rem; font-weight: 700; cursor: pointer; flex-shrink: 0; transition: box-shadow 0.15s, transform 0.15s; white-space: nowrap; box-shadow: 0 3px 10px rgba(37,99,235,0.25); font-family: inherit; }
+.banner-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,0.35); }
+.banner-close { width: 26px; height: 26px; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 7px; color: #64748B; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, color 0.15s; }
+.banner-close:hover { background: #FEE2E2; color: #DC2626; border-color: #FECACA; }
 
 /* ─── Filter Bar ──────────────────────────────────────────────────────────── */
 .filter-bar { padding: 20px 32px 0 32px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -707,26 +692,142 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
 
+.grid-padded { padding: 10px 32px 0 !important; }
+
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
+
+/* ── Large tablet (≤1200px) ─────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .hero-right { width: 340px; }
 }
+
+/* ── Tablet landscape (≤1024px) ─────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .hero-right { width: 300px; }
+  .hero-wrap, .stats-wrap, .ending-section-wrap,
+  .filter-bar, .section-heading-wrap { padding-left: 20px; padding-right: 20px; }
+  #newArrivalsGrid, #laptopGrid { padding-left: 20px !important; padding-right: 20px !important; }
+  .new-listing-banner { margin-left: 20px; margin-right: 20px; }
+  .hero-right { width: 280px; }
   .hero-title { font-size: 1.35rem; }
-  .hero-img { max-width: 280px; }
+  .hero-img { max-width: 240px; max-height: 200px; }
+  .hero-section { padding: 26px 24px 26px 32px; }
 }
+
+/* ── Tablet portrait (≤860px) ───────────────────────────────────────────── */
 @media (max-width: 860px) {
-  .hero-right { display: none; }
+  .hero-section {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 24px 28px;
+    min-height: unset;
+  }
+  .hero-right {
+    width: 100%;
+    align-self: center;
+    min-height: 180px;
+  }
+  .hero-img-wrap { min-height: 160px; justify-content: center; }
+  .hero-img { max-width: 260px; max-height: 200px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .ending-card { min-width: 240px; }
 }
+
+/* ── Mobile (≤768px) ────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  /* Layout */
   .main-content { margin-left: 0; }
-  .stats-grid { grid-template-columns: repeat(2,1fr); }
-  .top-nav { padding: 0 16px; }
+
+  /* Nav */
+  .top-nav { padding: 0 14px; height: 56px; gap: 10px; }
   .top-nav-links { display: none; }
-  .hero-wrap, .stats-wrap, .ending-section-wrap, .filter-bar, .section-heading-wrap { padding-left: 16px; padding-right: 16px; }
-  .new-listing-banner { margin-left: 16px; margin-right: 16px; }
-  .site-footer { padding: 14px 16px; flex-direction: column; text-align: center; }
+  .top-nav-logo-text { display: none; }
+  .search-bar { width: 160px; font-size: 0.8rem; }
+  .search-bar:focus { width: 190px; }
+  .sort-select { padding: 8px 30px 8px 10px; font-size: 0.75rem; }
+
+  /* Hero */
+  .hero-wrap { padding: 12px 14px 0; }
+  .hero-section {
+    flex-direction: column;
+    padding: 20px 18px 22px;
+    gap: 18px;
+    min-height: unset;
+    border-radius: 16px;
+  }
+  .hero-section::before { width: 3px; }
+  .hero-left { width: 100%; }
+  .hero-title { font-size: 1.2rem; margin-bottom: 10px; }
+  .hero-specs { gap: 5px; margin-bottom: 14px; }
+  .hero-spec-chip { font-size: 0.67rem; padding: 3px 8px; }
+  .hero-countdown-wrap { margin-bottom: 14px; }
+  .hero-countdown-wrap .cd-unit { min-width: 46px !important; padding: 8px 5px !important; }
+  .hero-countdown-wrap .cd-num { font-size: 1.15rem !important; }
+  .hero-bid-stats { gap: 0; margin-bottom: 16px; flex-wrap: wrap; }
+  .hero-stat-item { padding: 0 12px; }
+  .hero-stat-val { font-size: 0.95rem; }
+  .hero-cta { width: 100%; justify-content: center; padding: 12px 20px; }
+
+  /* Hero image */
+  .hero-right { width: 100%; align-self: center; }
+  .hero-img { max-width: 220px; max-height: 170px; }
+
+  /* Stats */
+  .stats-wrap { padding: 10px 14px 0; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .stat-card { padding: 12px 14px; border-radius: 12px; gap: 10px; }
+  .stat-value { font-size: 1.25rem; }
+  .stat-label { font-size: 0.67rem; }
+  .stat-icon-wrap { width: 32px; height: 32px; border-radius: 8px; }
+
+  /* New listing banner */
+  .new-listing-banner { margin-left: 14px; margin-right: 14px; border-radius: 12px; }
+  .new-listing-banner.visible { padding: 10px 14px; }
+  .banner-title { font-size: 0.82rem; }
+  .banner-sub { display: none; }
+
+  /* Ending soon */
+  .ending-section-wrap { padding: 14px 14px 0; }
+  .ending-card { min-width: 220px; padding: 10px 12px; }
+  .ending-card-name { font-size: 0.78rem; }
+
+  /* Filter bar */
+  .filter-bar { padding: 12px 14px 0; gap: 5px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip { font-size: 0.73rem; padding: 4px 11px; white-space: nowrap; flex-shrink: 0; }
+  .filter-sep { display: none; }
+  .filter-group-label { display: none; white-space: nowrap; flex-shrink: 0; }
+  #conditionChips, #brandChips { flex-wrap: nowrap !important; flex-shrink: 0; }
+
+  /* Section headings */
+  .section-heading-wrap { padding: 14px 14px 0; }
+  #newArrivalsGrid, #laptopGrid { padding: 8px 14px 0 !important; }
+
+  /* Cards */
+  .laptop-card { border-radius: 16px; }
+
+  /* Detail panel — full screen on mobile */
+  .detail-panel { width: 100% !important; min-width: unset !important; border-left: none; border-top: 1.5px solid #E2E8F0; border-radius: 20px 20px 0 0; top: auto; height: 92vh; }
+
+  /* Pagination */
+  #pagination { padding: 20px 14px 28px; flex-wrap: wrap; }
+
+  /* Footer */
+  .site-footer { padding: 14px; flex-direction: column; text-align: center; gap: 10px; }
+  .site-footer-left { flex-direction: column; text-align: center; }
+
+  /* Toast */
+  .toast { font-size: 0.8rem; padding: 11px 18px; white-space: normal; max-width: 88vw; text-align: center; }
+}
+
+/* ── Small mobile (≤480px) ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .hero-title { font-size: 1.05rem; }
+  .hero-countdown-wrap .cd-unit { min-width: 40px !important; }
+  .hero-countdown-wrap .cd-num { font-size: 1rem !important; }
+  .search-bar { width: 130px; }
+  .search-bar:focus { width: 155px; }
 }
 </style>
 </head>
@@ -769,13 +870,7 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
         <svg class="search-icon-inner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="search-bar" id="searchInput" type="text" placeholder="Search laptops, brands, specs...">
       </div>
-      <div style="position:relative;">
-        <select class="sort-select" id="sortSelect" onchange="setSortBy(this.value)">
-          <option value="newest">✨ Newest First</option>
-          <option value="ending">⏱ Ending Soon</option>
-          <option value="bids">🔥 Most Bids</option>
-        </select>
-      </div>
+
     </div>
   </div>
 
@@ -792,19 +887,19 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
   <!-- New Listing Banner -->
   <div id="newListingBanner" class="new-listing-banner">
     <div class="banner-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
-        <path d="M12 7v4M10 9h4" stroke="#fff" stroke-width="2.2"/>
+        <path d="M12 7v4M10 9h4" stroke="#2563EB" stroke-width="2.2"/>
       </svg>
     </div>
     <div class="banner-text">
-      <div class="banner-label">🆕 New Listing</div>
+      <div class="banner-label">New Listing</div>
       <div class="banner-title" id="bannerTitle">A new laptop has been added!</div>
       <div class="banner-sub" id="bannerSub">Check it out before bidding closes.</div>
     </div>
     <button class="banner-btn" id="bannerViewBtn" onclick="handleBannerView()">View Listing →</button>
     <button class="banner-close" onclick="dismissBanner()" title="Dismiss">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
 
@@ -821,10 +916,10 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
     <button class="filter-chip" data-filter="status" data-value="closed" onclick="setFilter('status','closed',this)">Closed</button>
     <div class="filter-sep"></div>
     <span class="filter-group-label">Condition</span>
-    <div id="conditionChips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
+    <div id="conditionChips" style="display:flex;gap:6px;align-items:center;flex-shrink:0;"></div>
     <div class="filter-sep"></div>
     <span class="filter-group-label">Brand</span>
-    <div id="brandChips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
+    <div id="brandChips" style="display:flex;gap:6px;align-items:center;flex-shrink:0;"></div>
   </div>
 
   <!-- New Arrivals Section -->
@@ -834,21 +929,21 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
       <h2 class="section-heading">New Arrivals</h2>
       <span class="section-listing-count" id="newArrivalsCount">0 listings</span>
     </div>
-    <div style="padding:10px 32px 0;" id="newArrivalsGrid"></div>
+    <div style="padding:10px 32px 0;" id="newArrivalsGrid" class="grid-padded"></div>
   </div>
 
   <!-- All Listings Section -->
-  <div style="margin-top:32px;" id="allListingsWrap">
+  <div style="margin-top:28px;" id="allListingsWrap">
     <div class="section-heading-wrap">
       <span class="section-heading-icon" id="sectionIcon">🖥️</span>
       <h2 class="section-heading" id="sectionTitle">All Listings</h2>
       <span class="section-listing-count" id="listingCount">0 listings</span>
     </div>
-    <div style="padding:10px 32px 0;" id="laptopGrid"></div>
+    <div style="padding:10px 32px 0;" id="laptopGrid" class="grid-padded"></div>
   </div>
 
   <!-- Pagination -->
-  <div style="padding:28px 32px 36px 32px;display:flex;align-items:center;justify-content:center;gap:6px;" id="pagination"></div>
+  <div style="padding:28px 32px 36px 32px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;" id="pagination"></div>
 
   <!-- Footer -->
   <footer class="site-footer">
@@ -862,11 +957,6 @@ body { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; background: #F8
         <div class="site-footer-title">Secure. Transparent. Fair.</div>
         <div class="site-footer-sub">All auctions are monitored to ensure a fair bidding experience for everyone.</div>
       </div>
-    </div>
-    <div class="site-footer-icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
     </div>
   </footer>
 
@@ -1019,7 +1109,6 @@ function renderHero(laptopList) {
 
   heroSection.innerHTML = `
     <div class="hero-section">
-      <div class="hero-dots"></div>
       <div class="hero-left">
         <div class="hero-badge">
           <span class="hero-badge-dot"></span>
@@ -1027,13 +1116,16 @@ function renderHero(laptopList) {
         </div>
         <h2 class="hero-title">${featured.name}</h2>
         <div class="hero-specs">
-          ${featured.cpu !== 'N/A' ? `<span class="hero-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>${featured.cpu}</span>` : ''}
-          ${featured.ram !== 'N/A' ? `<span class="hero-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 19v-3M10 19v-3M14 19v-3M18 19v-3M8 11V9M16 11V9M12 11V9"/><rect x="2" y="7" width="20" height="8" rx="2"/></svg>${featured.ram}</span>` : ''}
-          ${featured.storage !== 'N/A' ? `<span class="hero-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>${featured.storage}</span>` : ''}
-          ${featured.display !== 'N/A' ? `<span class="hero-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>${featured.display}</span>` : ''}
+          ${featured.cpu !== 'N/A' ? `<span class="hero-spec-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>${featured.cpu}</span>` : ''}
+          ${featured.ram !== 'N/A' ? `<span class="hero-spec-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 19v-3M10 19v-3M14 19v-3M18 19v-3M8 11V9M16 11V9M12 11V9"/><rect x="2" y="7" width="20" height="8" rx="2"/></svg>${featured.ram}</span>` : ''}
+          ${featured.storage !== 'N/A' ? `<span class="hero-spec-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>${featured.storage}</span>` : ''}
+          ${featured.display !== 'N/A' ? `<span class="hero-spec-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>${featured.display}</span>` : ''}
         </div>
         <div class="hero-countdown-wrap">
-          <div class="hero-countdown-label">${isUrgent ? '🔥 Ending Very Soon' : '⏱ Time Remaining'}</div>
+          <div class="hero-countdown-label">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${isUrgent ? 'Ending Very Soon' : 'Time Remaining'}
+          </div>
           <div id="cd-hero"></div>
         </div>
         <div class="hero-bid-stats">
@@ -1053,19 +1145,13 @@ function renderHero(laptopList) {
           </div>
         </div>
         <button class="hero-cta" onclick="openPanel(${featured.id})">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Place Your Bid
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
       </div>
       <div class="hero-right">
-        <div class="hero-img-glow"></div>
-        <div class="hero-img-wrap" onclick="openPanel(${featured.id})"
-             style="cursor:pointer;"
-             onmouseover="this.querySelector('img').style.transform='scale(1.06)'"
-             onmouseout="this.querySelector('img').style.transform='scale(1)'">
+        <div class="hero-img-wrap" onclick="openPanel(${featured.id})" style="cursor:pointer;">
           <img src="${featured.img || ''}" alt="${featured.name}" class="hero-img"
-               style="transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);"
                onerror="this.style.display='none'">
         </div>
       </div>
@@ -1189,10 +1275,10 @@ function renderEndingSoon(laptopList) {
 }
 
 // ─── Build a single laptop card HTML ───────────────────────────────────────────
-function buildCard(l, i, badgeOverride) {
+function buildCard(l, i, badgeOverride, cdPrefix) {
   const isOpen = l.status === 'open';
-  const cdId   = `cd-card-${l.id}`;
-  const badge  = badgeOverride || (l.totalBids >= 3 ? 'hot' : '');
+  const cdId   = `${cdPrefix || 'cd-card'}-${l.id}`;
+  const badge  = badgeOverride || (l.totalBids >= 30 ? 'hot' : '');
   return `
     <div class="laptop-card card-anim" style="animation-delay:${i * 0.045}s;">
       <div class="card-img-wrap">
@@ -1222,7 +1308,7 @@ function buildCard(l, i, badgeOverride) {
         </div>
         <div style="margin-bottom:14px;">
           <div style="font-size:0.64rem;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">${isOpen ? '⏱ Time Remaining' : '⛔ Auction Ended'}</div>
-          <div id="${cdId}"></div>
+          <div id="${cdId}">${!isOpen ? '<span style="font-size:0.8rem;color:#DC2626;font-weight:700;">Auction Ended</span>' : (!l.closingDateRaw ? '<span style="font-size:0.75rem;color:#94A3B8;">No closing date set</span>' : '')}</div>
         </div>
         <button class="btn-details" ${!isOpen ? 'disabled' : `onclick="openPanel(${l.id})"`}>
           ${isOpen ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/></svg> View &amp; Bid` : 'Auction Closed'}
@@ -1262,11 +1348,11 @@ function renderGrid(data) {
     } else {
       newArrivalsGrid.innerHTML =
         `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;">` +
-        newArrivals.map((l, i) => buildCard(l, i, 'new')).join('') +
+        newArrivals.map((l, i) => buildCard(l, i, 'new', 'cd-new')).join('') +
         `</div>`;
       newArrivals.forEach(l => {
         const d = parseClosingDate(l.closingDateRaw);
-        if (d) renderCountdown(d, `cd-card-${l.id}`, false);
+        if (d) renderCountdown(d, `cd-new-${l.id}`, false);
       });
     }
   }
@@ -1297,7 +1383,7 @@ function renderGrid(data) {
 
   grid.innerHTML =
     `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;">` +
-    data.map((l, i) => buildCard(l, i, l.totalBids >= 3 ? 'hot' : '')).join('') +
+    data.map((l, i) => buildCard(l, i, l.totalBids >= 30 ? 'hot' : '')).join('') +
     `</div>`;
 
   data.forEach(l => {
@@ -1330,8 +1416,12 @@ async function loadLaptops() {
     }
 
     laptops = laptopData.map(item => {
-      const rawDate = item.closing_date;
-      const parsed  = parseClosingDate(rawDate);
+      const rawDate  = item.closing_date;
+      const parsed   = parseClosingDate(rawDate);
+      const dbStatus = (item.status || 'closed').toLowerCase();
+      // Treat as closed if DB says open but closing date has already passed
+      const isExpired = dbStatus === 'open' && parsed && parsed <= Date.now();
+      const effectiveStatus = isExpired ? 'closed' : dbStatus;
       return {
         id:             item.id,
         name:           item.title          || 'Unnamed Laptop',
@@ -1343,7 +1433,7 @@ async function loadLaptops() {
         condition:      item.condition      || 'N/A',
         currentBid:     item.bidding_amount || 0,
         totalBids:      item.total_bids     || 0,
-        status:         (item.status || 'closed').toLowerCase(),
+        status:         effectiveStatus,
         closingDateRaw: rawDate,
         closingDate:    formatDate(parsed),
         img:            item.image_url      || '',
@@ -1408,14 +1498,14 @@ function closePanel() {
 
 // ─── Render Panel ──────────────────────────────────────────────────────────────
 function renderPanel(l) {
-  const isOpen    = l.status === 'open';
+  const canBid    = l.status === 'open';
   const parsed    = parseClosingDate(l.closingDateRaw);
   const cdPanelId = `cd-panel-${l.id}`;
   const condColor = l.condition === 'Excellent' ? '#16A34A' : l.condition === 'Good' ? '#2563EB' : '#D97706';
 
   const badge = document.getElementById('panelBadge');
-  badge.textContent = isOpen ? 'Open' : 'Closed';
-  badge.style.background = isOpen ? 'rgba(255,255,255,0.25)' : 'rgba(239,68,68,0.3)';
+  badge.textContent = canBid ? 'Open' : 'Closed';
+  badge.style.background = canBid ? 'rgba(255,255,255,0.25)' : 'rgba(239,68,68,0.3)';
 
   document.getElementById('panelContent').innerHTML = `
     <div onclick="openImageLightbox(this.dataset.img, this.dataset.name)" data-img="${l.img || ''}" data-name="${l.name}" title="Click to view full image"
@@ -1486,7 +1576,7 @@ function renderPanel(l) {
       </div>
     </div>
 
-    ${isOpen ? `
+    ${canBid ? `
     <div style="margin-bottom:16px;">
       <div style="font-size:0.95rem;font-weight:700;color:#0F172A;border-left:3px solid #2563EB;padding-left:10px;margin-bottom:12px;">Place Your Bid</div>
       <p style="font-size:0.8rem;color:#64748B;margin-bottom:14px;line-height:1.6;">Click the button below to open the bidding form for this laptop. Fill in your code name and bid amount on the form.</p>
