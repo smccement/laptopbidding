@@ -818,7 +818,6 @@ body::after {
   border: 1px solid var(--border);
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   transition: all 0.3s cubic-bezier(.22,1,.36,1);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -850,6 +849,7 @@ body::after {
   background: linear-gradient(160deg, #f8f9fc 0%, rgba(79,110,255,0.03) 100%);
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   border-bottom: 1px solid var(--border);
 }
 .card-img-wrap::before {
@@ -1548,7 +1548,9 @@ function renderStats(laptopList) {
   const endingSoon = laptopList.filter(l => {
     if (l.status !== 'open') return false;
     const d = parseClosingDate(l.closingDateRaw);
-    return d && d > now;
+    if (!d) return false;
+    const daysLeft = (d - now) / (1000 * 3600 * 24);
+    return daysLeft > 0 && daysLeft <= 5;
   }).length;
 
   const stats = [
@@ -1605,14 +1607,15 @@ function renderEndingSoon(laptopList) {
     .filter(l => {
       if (l.status !== 'open') return false;
       const d = parseClosingDate(l.closingDateRaw);
-      return d && d > now;
+      if (!d) return false;
+      const daysLeft = (d - now) / (1000 * 3600 * 24);
+      return daysLeft > 0 && daysLeft <= 5;
     })
     .sort((a, b) => {
       const da = parseClosingDate(a.closingDateRaw) || 0;
       const db = parseClosingDate(b.closingDateRaw) || 0;
       return da - db;
-    })
-    .slice(0, 6);
+    });
 
   if (ending.length === 0) { section.innerHTML = ''; return; }
 
@@ -1665,9 +1668,6 @@ function buildCard(l, i, badgeOverride, cdPrefix) {
   return `
     <div class="laptop-card card-anim" style="animation-delay:${i * 0.045}s;">
       <div class="card-img-wrap">
-        ${badge === 'new' ? '<span class="badge-new">✦ NEW</span>' : ''}
-        ${badge === 'hot' ? '<span class="badge-hot">🔥 HOT</span>' : ''}
-        ${badge === 'ending-soon' ? '<span class="badge-ending-soon">⏳ ENDING SOON</span>' : ''}
         <img src="${l.img || ''}" alt="${l.name}" class="card-img"
              onerror="this.parentNode.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;\\'><svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'48\\' height=\\'48\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'rgba(255,255,255,0.1)\\' stroke-width=\\'1.2\\'><rect x=\\'2\\' y=\\'3\\' width=\\'20\\' height=\\'14\\' rx=\\'2\\'/><path d=\\'M8 21h8M12 17v4\\'/></svg></div>'">
       </div>
@@ -1911,11 +1911,12 @@ function renderPanel(l) {
     : '';
 
   document.getElementById('panelContent').innerHTML = `
-    <div onclick="openImageLightbox(this.dataset.img, this.dataset.name)" data-img="${l.img || ''}" data-name="${l.name}" title="Click to view full image"
-       style="display:block;background:linear-gradient(160deg,#f8f9fc,rgba(79,110,255,0.03));border-radius:18px;height:210px;display:flex;align-items:center;justify-content:center;padding:18px;border:1px solid var(--border);margin-bottom:18px;cursor:zoom-in;position:relative;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;"
-       onmouseover="this.style.borderColor='rgba(79,110,255,0.3)';this.style.boxShadow='0 0 0 3px rgba(79,110,255,0.08)'"
-       onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
-      ${panelBadgeHTML}
+    <div style="margin-bottom:18px;">
+      ${panelBadgeHTML ? `<div style="margin-bottom:8px;">${panelBadgeHTML.replace(/position:absolute;top:12px;left:12px;/g, 'display:inline-flex;')}</div>` : ''}
+      <div onclick="openImageLightbox(this.dataset.img, this.dataset.name)" data-img="${l.img || ''}" data-name="${l.name}" title="Click to view full image"
+         style="display:flex;background:linear-gradient(160deg,#f8f9fc,rgba(79,110,255,0.03));border-radius:18px;height:210px;align-items:center;justify-content:center;padding:18px;border:1px solid var(--border);cursor:zoom-in;position:relative;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;"
+         onmouseover="this.style.borderColor='rgba(79,110,255,0.3)';this.style.boxShadow='0 0 0 3px rgba(79,110,255,0.08)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
       <img src="${l.img || ''}" alt="${l.name}"
            style="max-height:174px;max-width:100%;object-fit:contain;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.15));transition:transform 0.2s;pointer-events:none;"
            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"
